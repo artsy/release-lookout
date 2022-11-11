@@ -1,3 +1,6 @@
-import { WebClient } from "@slack/web-api";
+import * as dotenv from "dotenv"
+dotenv.config()
 
-console.log("Hi");
+import { sendReleaseReminder } from "./release-reminders"
+
+sendReleaseReminder()
