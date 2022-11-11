@@ -1,3 +1,5 @@
+<img src="icon.png" width="100" />
+
 # Release Cabin Boy
 
 This bot reminds the Release Captain to do certain tasks on the day they need to be done.
@@ -6,6 +8,7 @@ This bot reminds the Release Captain to do certain tasks on the day they need to
 
 - **Slack App Link:** https://api.slack.com/apps/A04BAKXR83S
 - **Point People:** [@pvinis](https://github.com/pvinis)
+
 
 ## How to develop
 
