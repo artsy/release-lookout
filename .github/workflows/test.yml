@@ -1,0 +1,19 @@
+name: test
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install deps
+        run: npm install
+      - name: Send reminder
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+        run: npm run do-it
