@@ -14,7 +14,7 @@ type Task = "recent-and-applause" | "applause-review" | "skip"
 export const sendReleaseReminder = async () => {
 	try {
 		const now = DateTime.now()
-		const isMonday = now.weekday === 1
+		const isTuesday = now.weekday === 2
 		const isFriday = now.weekday === 5
 		const isFirstWeekOfCadence =
 			(firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 0) ||
@@ -27,7 +27,7 @@ export const sendReleaseReminder = async () => {
 		if (isFirstWeekOfCadence && isFriday) {
 			task = "recent-and-applause"
 		}
-		if (isSecondWeekOfCadence && isMonday) {
+		if (isSecondWeekOfCadence && isTuesday) {
 			task = "applause-review"
 		}
 
