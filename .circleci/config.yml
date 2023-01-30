@@ -15,8 +15,6 @@ jobs:
           command: npm install
       - run:
           name: Send reminder to Slack
-          # env?
-          # SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           command: npm run do-it
 
 workflows:
@@ -24,7 +22,6 @@ workflows:
 
   release_cadence:
     triggers:
-      # workflow_dispatch:
       - schedule:
           cron: "0 10,15 * * 1,2,3,4,5" # https://crontab.guru
           filters:
@@ -33,3 +30,7 @@ workflows:
                 - main
     jobs:
       - send_reminder
+# Uncomment the following workflow to trigger the reminder on every push, for debugging.
+# release_cadence_manual:
+#   jobs:
+#     - send_reminder
