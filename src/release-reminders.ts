@@ -9,12 +9,13 @@ const firstWeekOfCadenceIsEvenWeek = false // flip this if the bot is notifying 
 const CHANNEL = "C02BAQ5K7" // #practice-mobile
 // const CHANNEL = "C012K7XU4LE" // #bot-testing
 
-type Task = "recent-and-applause" | "applause-review" | "skip"
+type Task = "recent-and-applause" | "applause-review" | "feedback-form" | "skip"
 
 export const sendReleaseReminder = async () => {
 	try {
 		const now = DateTime.now()
 		const isTuesday = now.weekday === 2
+		const isWednesday = now.weekday === 3
 		const isFriday = now.weekday === 5
 		const isFirstWeekOfCadence =
 			(firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 0) ||
@@ -23,6 +24,7 @@ export const sendReleaseReminder = async () => {
 			(firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 1) ||
 			(!firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 0)
 
+		// MAIN LOGIC START
 		let task: Task = "skip"
 		if (isFirstWeekOfCadence && isFriday) {
 			task = "recent-and-applause"
@@ -30,11 +32,15 @@ export const sendReleaseReminder = async () => {
 		if (isSecondWeekOfCadence && isTuesday) {
 			task = "applause-review"
 		}
+		if (isSecondWeekOfCadence && isWednesday) {
+			task = "feedback-form"
+		}
 
 		if (task === "skip") {
 			console.log("All good for today.")
 			return
 		}
+		// MAIN LOGIN END
 
 		const info = await web.conversations.info({
 			channel: CHANNEL,
@@ -75,6 +81,8 @@ const taskText = (task: Task) => {
 			return "set up Recent Changes QA and Request Applause QA"
 		case "applause-review":
 			return "review Applause bugs and export them to the Applause Jira board"
+		case "feedback-form":
+			return "tell us how long the release took, because we are trying to optimize. Fill out this form: https://docs.google.com/forms/d/e/1FAIpQLSdfQlgk562b_Rmgz0PlFQi5a6NEELicTAXvZVPYA0nHEXMALA/viewform"
 		case "skip":
 			return "relax" // this will not show anyway
 		default:
