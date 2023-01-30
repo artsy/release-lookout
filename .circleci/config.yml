@@ -1,0 +1,35 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+jobs:
+  send_reminder:
+    docker:
+      - image: cimg/node:18.12.1
+
+    steps:
+      - checkout
+      - run:
+          name: Install deps
+          command: npm install
+      - run:
+          name: Send reminder to Slack
+          # env?
+          # SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          command: npm run do-it
+
+workflows:
+  version: 2
+
+  release_cadence:
+    triggers:
+      # workflow_dispatch:
+      - schedule:
+          cron: "0 10,15 * * 1,2,3,4,5" # https://crontab.guru
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - send_reminder
