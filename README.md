@@ -1,6 +1,6 @@
 <img src="assets/icon.png" width="100" />
 
-# Release Cabin Boy
+# Release Lookout
 
 This bot reminds the Release Captain to do certain tasks on the day they need to be done.
 
