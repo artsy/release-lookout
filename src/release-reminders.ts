@@ -9,11 +9,18 @@ const firstWeekOfCadenceIsEvenWeek = false // flip this if the bot is notifying 
 const CHANNEL = "C02BAQ5K7" // #practice-mobile
 // const CHANNEL = "C012K7XU4LE" // #bot-testing
 
-type Task = "recent-and-applause" | "applause-review" | "feedback-form" | "skip"
+type Task =
+	| "skip"
+	| "recent-and-applause"
+	| "applause-review"
+	| "feedback-form"
+	| "update-android-rollout-50"
+	| "update-android-rollout-100"
 
 export const sendReleaseReminder = async () => {
 	try {
 		const now = DateTime.now()
+		const isMonday = now.weekday === 1
 		const isTuesday = now.weekday === 2
 		const isWednesday = now.weekday === 3
 		const isFriday = now.weekday === 5
@@ -34,6 +41,13 @@ export const sendReleaseReminder = async () => {
 		}
 		if (isSecondWeekOfCadence && isWednesday) {
 			task = "feedback-form"
+		}
+		if (isSecondWeekOfCadence && isFriday) {
+			task = "update-android-rollout-50"
+		}
+		// this is the third week of the release
+		if (isFirstWeekOfCadence && isMonday) {
+			task = "update-android-rollout-100"
 		}
 
 		if (task === "skip") {
@@ -77,14 +91,18 @@ export const sendReleaseReminder = async () => {
 
 const taskText = (task: Task) => {
 	switch (task) {
+		case "skip":
+			return "relax" // this will not show anyway
 		case "recent-and-applause":
 			return "set up Recent Changes QA and Request Applause QA"
 		case "applause-review":
 			return "review Applause bugs and export them to the Applause Jira board"
 		case "feedback-form":
 			return "tell us how long the release took, because we are trying to optimize. Fill out this form: https://docs.google.com/forms/d/e/1FAIpQLSdfQlgk562b_Rmgz0PlFQi5a6NEELicTAXvZVPYA0nHEXMALA/viewform"
-		case "skip":
-			return "relax" // this will not show anyway
+		case "update-android-rollout-50":
+			return "update the Android rollout to 50% in the Play Store"
+		case "update-android-rollout-100":
+			return "update the Android rollout to 100% in the Play Store"
 		default:
 			assertNever(task)
 	}
