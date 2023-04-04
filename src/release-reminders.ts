@@ -96,7 +96,7 @@ const taskText = (task: Task) => {
 		case "recent-and-applause":
 			return "set up Recent Changes QA and Request Applause QA"
 		case "applause-review":
-			return "review Applause bugs and export them to the Applause Jira board"
+			return "export Applause bugs to the Applause Jira board"
 		case "feedback-form":
 			return "tell us how long the release took, because we are trying to optimize. Fill out this form: https://docs.google.com/forms/d/e/1FAIpQLSdfQlgk562b_Rmgz0PlFQi5a6NEELicTAXvZVPYA0nHEXMALA/viewform"
 		case "update-android-rollout-50":
