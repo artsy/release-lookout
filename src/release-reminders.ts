@@ -12,7 +12,6 @@ const CHANNEL = "C02BAQ5K7" // #practice-mobile
 type Task =
 	| "skip"
 	| "recent-and-applause"
-	| "applause-review"
 	| "feedback-form"
 	| "update-android-rollout-50"
 	| "update-android-rollout-100"
@@ -35,9 +34,6 @@ export const sendReleaseReminder = async () => {
 		let task: Task = "skip"
 		if (isFirstWeekOfCadence && isFriday) {
 			task = "recent-and-applause"
-		}
-		if (isSecondWeekOfCadence && isTuesday) {
-			task = "applause-review"
 		}
 		if (isSecondWeekOfCadence && isWednesday) {
 			task = "feedback-form"
@@ -95,8 +91,6 @@ const taskText = (task: Task) => {
 			return "relax" // this will not show anyway
 		case "recent-and-applause":
 			return "set up Recent Changes QA and Request Applause QA"
-		case "applause-review":
-			return "export Applause bugs to the Applause Jira board"
 		case "feedback-form":
 			return "tell us how long the release took, because we are trying to optimize. Fill out this form: https://docs.google.com/forms/d/e/1FAIpQLSdfQlgk562b_Rmgz0PlFQi5a6NEELicTAXvZVPYA0nHEXMALA/viewform"
 		case "update-android-rollout-50":
