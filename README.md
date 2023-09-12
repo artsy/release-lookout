@@ -7,7 +7,7 @@ This bot reminds the Release Captain to do certain tasks on the day they need to
 ## Meta
 
 - **Slack App Link:** https://api.slack.com/apps/A04BAKXR83S
-- **Point People:** [@pvinis](https://github.com/pvinis)
+- **Point People:** [@gkartalis](https://github.com/gkartalis)
 
 ## How to develop
 
