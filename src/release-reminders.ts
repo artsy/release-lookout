@@ -65,12 +65,12 @@ export const sendReleaseReminder = async () => {
 			id: m.id,
 			displayName: m.profile?.display_name ?? "",
 		}))
-		const pavlos = users.find((m) => m.displayName === "pavlos")?.id ?? ""
+		const george = users.find((m) => m.displayName === "george")?.id ?? ""
 		const brian = users.find((m) => m.displayName === "brian.b")?.id ?? ""
 
 		const text = captain
 			? `Captain <@${captain}> 🫡, don't forget to ${taskText(task)} today! ✨`
-			: `There is no Release Captain set <@${pavlos}> <@${brian}>! Make sure to add one on the channel's topic. Someone should ${taskText(
+			: `There is no Release Captain set <@${george}> <@${brian}>! Make sure to add one on the channel's topic. Someone should ${taskText(
 					task
 			  )} today!`
 

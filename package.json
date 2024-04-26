@@ -1,5 +1,5 @@
 {
-  "name": "release-cabin-boy",
+  "name": "release-lookout",
   "version": "1.0.0",
   "description": "A simple Slack bot that notifies the release captain on the day there are things to be done.",
   "scripts": {
