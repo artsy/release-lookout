@@ -106,7 +106,7 @@ const taskText = (task: Task, weekNumber: number) => {
 const getApplauseTaskText = (weekNumber: number): string => {
 	const adjustedWeekNumber = weekNumber + 1
 	const currentCycleIndex = (adjustedWeekNumber - 1) % 4; // 0-indexed cycle count
-	const testSuite = currentCycleIndex < 2 ? "Master Suite 1" : "Master Suite 2";
+	const testSuite = currentCycleIndex < 2 ? "Test Suite 1" : "Test Suite 2";
 	const platform = currentCycleIndex % 2 === 0  ? "Android" : "iOS"
 	return `set up Recent Changes QA and Request Applause QA for the ${platform} app using ${testSuite}`;
 }
