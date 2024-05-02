@@ -65,13 +65,14 @@ export const sendReleaseReminder = async () => {
 			id: m.id,
 			displayName: m.profile?.display_name ?? "",
 		}))
+
 		const george = users.find((m) => m.displayName === "george")?.id ?? ""
 		const brian = users.find((m) => m.displayName === "brian.b")?.id ?? ""
 
 		const text = captain
-			? `Captain <@${captain}> 🫡, don't forget to ${taskText(task)} today! ✨`
+			? `Captain <@${captain}> 🫡, don't forget to ${taskText(task, now.weekNumber)} today! ✨`
 			: `There is no Release Captain set <@${george}> <@${brian}>! Make sure to add one on the channel's topic. Someone should ${taskText(
-					task
+					task, now.weekNumber
 			  )} today!`
 
 		await web.chat.postMessage({
@@ -85,12 +86,12 @@ export const sendReleaseReminder = async () => {
 	}
 }
 
-const taskText = (task: Task) => {
+const taskText = (task: Task, weekNumber: number) => {
 	switch (task) {
 		case "skip":
 			return "relax" // this will not show anyway
 		case "recent-and-applause":
-			return "set up Recent Changes QA and Request Applause QA"
+			return getApplauseTaskText(weekNumber)
 		case "feedback-form":
 			return "tell us how long the release took, because we are trying to optimize. Fill out this form: https://docs.google.com/forms/d/e/1FAIpQLSdfQlgk562b_Rmgz0PlFQi5a6NEELicTAXvZVPYA0nHEXMALA/viewform"
 		case "update-android-rollout-50":
@@ -100,6 +101,13 @@ const taskText = (task: Task) => {
 		default:
 			assertNever(task)
 	}
+}
+
+const getApplauseTaskText = (weekNumber: number): string => {
+	const currentCycleIndex = (weekNumber - 1) % 4; // 0-indexed cycle count
+	const testSuite = currentCycleIndex < 2 ? "Test Suite 1" : "Test Suite 2";
+	const platform = currentCycleIndex % 2 === 0  ? "Android" : "iOS"
+	return `set up Recent Changes QA and Request Applause QA for the ${platform} app using ${testSuite}`;
 }
 
 // some calculations :D
