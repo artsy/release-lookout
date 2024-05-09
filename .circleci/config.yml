@@ -6,16 +6,16 @@ orbs:
 jobs:
   send_reminder:
     docker:
-      - image: cimg/node:18.12.1
+      - image: cimg/node:20.9.0
 
     steps:
       - checkout
       - run:
           name: Install deps
-          command: npm install
+          command: yarn install
       - run:
           name: Send reminder to Slack
-          command: npm run do-it
+          command: yarn send-reminder
 
 workflows:
   version: 2
