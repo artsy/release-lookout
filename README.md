@@ -14,3 +14,7 @@ This bot reminds the Release Captain to do certain tasks on the day they need to
 - Run `yarn setup:artsy` to get your .env file setup
 - Run `yarn install` to install deps.
 - Run `yarn send-reminder` to send the reminder.
+
+### Testing
+
+By default messages will go to the #bot-testing channel, add yourself there to see messages!
