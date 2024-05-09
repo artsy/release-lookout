@@ -11,6 +11,6 @@ This bot reminds the Release Captain to do certain tasks on the day they need to
 
 ## How to develop
 
-- Make a `.env` file with the contents of `Slackbot release-lookout tokens` on 1Password.
-- Run `npm install` to install deps.
-- Run `npm run do-it` to send the reminder.
+- Run `yarn setup:artsy` to get your .env file setup
+- Run `yarn install` to install deps.
+- Run `yarn do-it` to send the reminder.
