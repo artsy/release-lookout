@@ -30,7 +30,7 @@ workflows:
                 - main
     jobs:
       - send_reminder
-  # Uncomment the following workflow to trigger the reminder on every push, for debugging.
-  release_cadence_manual:
-    jobs:
-      - send_reminder
+  # # Uncomment the following workflow to trigger the reminder on every push, for debugging.
+  # release_cadence_manual:
+  #   jobs:
+  #     - send_reminder
