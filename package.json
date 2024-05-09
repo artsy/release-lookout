@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "A simple Slack bot that notifies the release captain on the day there are things to be done.",
   "scripts": {
+    "setup:artsy": "./scripts/setup-env-for-artsy",
+    "setup:artsy:update!": "./scripts/update-env-for-artsy",
     "do-it": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
