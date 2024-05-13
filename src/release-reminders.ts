@@ -6,8 +6,7 @@ const web = new WebClient(process.env.SLACK_TOKEN)
 
 const firstWeekOfCadenceIsEvenWeek = false // flip this if the bot is notifying on the wrong weeks
 
-const CHANNEL = "C02BAQ5K7" // #practice-mobile
-// const CHANNEL = "C012K7XU4LE" // #bot-testing
+const CHANNEL = process.env.SLACK_CHANNEL ?? ""
 
 type Task =
 	| "skip"
