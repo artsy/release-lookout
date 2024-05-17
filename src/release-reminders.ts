@@ -73,17 +73,17 @@ export const sendReleaseReminder = async () => {
 		const brian = users.find((m) => m.displayName === "brian.b")?.id ?? ""
 
 		let text = captain
-			? `Captain <@${captain}> 🫡, don't forget to ${taskText(
+			? `Captain <@${captain}> 🫡, don't forget to ${await taskText(
 					task,
 					now.weekNumber
 			  )} today! ✨`
-			: `There is no Release Captain set <@${george}> <@${brian}>! Make sure to add one on the channel's topic. Someone should ${taskText(
+			: `There is no Release Captain set <@${george}> <@${brian}>! Make sure to add one on the channel's topic. Someone should ${await taskText(
 					task,
 					now.weekNumber
 			  )} today!`
 
 		if (task === "release-notes-reminder") {
-			text = `${taskText(task, now.weekNumber)}` // no need to mention the captain here
+			text = `${await taskText(task, now.weekNumber)}` // no need to mention the captain here
 		}
 
 		await web.chat.postMessage({
@@ -97,7 +97,30 @@ export const sendReleaseReminder = async () => {
 	}
 }
 
-const taskText = (task: Task, weekNumber: number) => {
+const getGroupHandles = async () => {
+	// add or edit the team handles here
+	const teamHandles = [
+		"mp-pals",
+		"emerald-devs",
+		"amber-devs",
+		"onyx-devs",
+		"diamond-devs",
+	]
+
+	const groups = (await web.usergroups.list()).usergroups?.map((g) => ({
+		id: g.id,
+		handle: g.handle,
+	}))
+
+	const groupIds = teamHandles.map((handle) => {
+		const groupId = groups?.find((g) => g.handle === handle)?.id
+		return `<!subteam^${groupId}>`
+	})
+
+	return groupIds.join(" ")
+}
+
+const taskText = async (task: Task, weekNumber: number) => {
 	switch (task) {
 		case "skip":
 			return "relax" // this will not show anyway
@@ -110,7 +133,7 @@ const taskText = (task: Task, weekNumber: number) => {
 		case "update-android-rollout-100":
 			return "update the Android rollout to 100% in the Play Store"
 		case "release-notes-reminder":
-			return ":wave: We are getting ready to release a new version of the Artsy mobile app! Tomorrow is codefreeze day 🥶. If you have any features you would like to be called out in the new version release notes please add them in the thread 👇🧵! \n You can find tips on formating release notes <https://docs.google.com/spreadsheets/d/1NK23Q1QwMxs6hucIrtZQ_s2mFpH62wEsspht7YS2_t8/edit#gid=172454703|here>."
+			return `:wave: We are getting ready to release a new version of the Artsy mobile app! Tomorrow is codefreeze day 🥶. If you have any features you would like to be called out in the new version release notes please add them in the thread 👇🧵! \n You can find tips on formating release notes <https://docs.google.com/spreadsheets/d/1NK23Q1QwMxs6hucIrtZQ_s2mFpH62wEsspht7YS2_t8/edit#gid=172454703|here>. \n${await getGroupHandles()}`
 		default:
 			assertNever(task)
 	}
