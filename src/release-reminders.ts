@@ -12,14 +12,11 @@ type Task =
 	| "skip"
 	| "recent-and-applause"
 	| "feedback-form"
-	| "update-android-rollout-50"
-	| "update-android-rollout-100"
 	| "release-notes-reminder"
 
 export const sendReleaseReminder = async () => {
 	try {
 		const now = DateTime.now()
-		const isMonday = now.weekday === 1
 		const isWednesday = now.weekday === 3
 		const isThursday = now.weekday === 4
 		const isFriday = now.weekday === 5
@@ -38,15 +35,8 @@ export const sendReleaseReminder = async () => {
 		if (isSecondWeekOfCadence && isWednesday) {
 			task = "feedback-form"
 		}
-		if (isSecondWeekOfCadence && isFriday) {
-			task = "update-android-rollout-50"
-		}
 		if (isFirstWeekOfCadence && isThursday) {
 			task = "release-notes-reminder"
-		}
-		// this is the third week of the release
-		if (isFirstWeekOfCadence && isMonday) {
-			task = "update-android-rollout-100"
 		}
 
 		if (task === "skip") {
@@ -128,10 +118,6 @@ const taskText = async (task: Task, weekNumber: number) => {
 			return getApplauseTaskText(weekNumber)
 		case "feedback-form":
 			return "tell us how long the release took, because we are trying to optimize. Fill out this form: https://docs.google.com/forms/d/e/1FAIpQLSdfQlgk562b_Rmgz0PlFQi5a6NEELicTAXvZVPYA0nHEXMALA/viewform"
-		case "update-android-rollout-50":
-			return "update the Android rollout to 50% in the Play Store"
-		case "update-android-rollout-100":
-			return "update the Android rollout to 100% in the Play Store"
 		case "release-notes-reminder":
 			return `:wave: We are getting ready to release a new version of the Artsy mobile app! Tomorrow is codefreeze day 🥶. If you have any features you would like to be called out in the new version release notes please add them in the thread 👇🧵! \n You can find tips on formating release notes <https://docs.google.com/spreadsheets/d/1NK23Q1QwMxs6hucIrtZQ_s2mFpH62wEsspht7YS2_t8/edit#gid=172454703|here>. \n${await getGroupHandles()}`
 		default:
