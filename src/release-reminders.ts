@@ -125,7 +125,7 @@ const taskText = async (task: Task, weekNumber: number) => {
 	}
 }
 
-const getApplauseTaskText = (weekNumber: number): string => {
+export const getApplauseTaskText = (weekNumber: number): string => {
 	const releaseNumber = Math.floor((weekNumber - 1) / 2) + 1
 	const currentCycleIndex = (releaseNumber - 1) % 4 // 0-indexed cycle count
 	const testSuite = currentCycleIndex < 2 ? "Test Suite 1" : "Test Suite 2"
