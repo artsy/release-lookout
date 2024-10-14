@@ -125,20 +125,10 @@ const taskText = async (task: Task, weekNumber: number) => {
 	}
 }
 
-const getApplauseTaskText = (weekNumber: number): string => {
-	const currentCycleIndex = (weekNumber - 1) % 4 // 0-indexed cycle count
+export const getApplauseTaskText = (weekNumber: number): string => {
+	const releaseNumber = Math.floor((weekNumber - 1) / 2) + 1
+	const currentCycleIndex = (releaseNumber - 1) % 4 // 0-indexed cycle count
 	const testSuite = currentCycleIndex < 2 ? "Test Suite 1" : "Test Suite 2"
 	const platform = currentCycleIndex % 2 === 0 ? "Android" : "iOS"
 	return `set up Recent Changes QA and Request Applause QA for the ${platform} app using ${testSuite}`
 }
-
-// some calculations :D
-//
-// firstIsEven true
-// 2 mon tue FRI
-// 3 MON tue fri
-//
-// firstIsEven false
-// 1 mon tue FRI
-// 2 MON tue fri
-//

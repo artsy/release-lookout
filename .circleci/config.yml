@@ -17,8 +17,24 @@ jobs:
           name: Send reminder to Slack
           command: yarn send-reminder
 
+  test-js:
+    docker:
+      - image: cimg/node:20.9.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: yarn install
+      - run:
+          name: Run tests
+          command: yarn test
+
 workflows:
   version: 2
+
+  test:
+    jobs:
+      - test-js
 
   release_cadence:
     triggers:
