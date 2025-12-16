@@ -4,7 +4,7 @@ import { assertNever } from "assert-never"
 
 const web = new WebClient(process.env.SLACK_TOKEN)
 
-const firstWeekOfCadenceIsEvenWeek = false // flip this if the bot is notifying on the wrong weeks
+const firstWeekOfCadenceIsEvenWeek = true // flip this if the bot is notifying on the wrong weeks
 
 const CHANNEL = process.env.SLACK_CHANNEL ?? ""
 
