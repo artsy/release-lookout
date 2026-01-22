@@ -92,7 +92,7 @@ const getGroupHandles = async () => {
 	const teamHandles = [
 		"mp-pals",
 		"emerald-devs",
-		"amber-devs",
+		"topaz-devs",
 		"onyx-devs",
 		"diamond-devs",
 	]
