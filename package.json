@@ -6,6 +6,7 @@
     "setup:artsy": "./scripts/setup-env-for-artsy",
     "setup:artsy:update!": "./scripts/update-env-for-artsy",
     "send-reminder": "ts-node src/index.ts",
+    "create-rc": "ts-node src/create-release-candidate.ts",
     "test": "jest"
   },
   "dependencies": {

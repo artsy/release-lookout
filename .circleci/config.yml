@@ -16,19 +16,9 @@ jobs:
       - run:
           name: Send reminder to Slack
           command: yarn send-reminder
-
-  create_release_candidate:
-    docker:
-      - image: cimg/node:20.9.0
-
-    steps:
-      - checkout
-      - run:
-          name: Install deps
-          command: yarn install
       - run:
           name: Create RC branch and PR in eigen
-          command: ./scripts/create-release-candidate
+          command: yarn create-rc
 
   test-js:
     docker:
@@ -59,17 +49,6 @@ workflows:
                 - main
     jobs:
       - send_reminder
-
-  create_rc:
-    triggers:
-      - schedule:
-          cron: "0 8 * * 5" # Fridays at 08:00 UTC, 2 hours before QA reminder
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - create_release_candidate
   # # Uncomment the following workflow to trigger the reminder on every push, for debugging.
   # release_cadence_manual:
   #   jobs:

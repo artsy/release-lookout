@@ -1,10 +1,9 @@
 import { WebClient } from "@slack/web-api"
 import { DateTime } from "luxon"
 import { assertNever } from "assert-never"
+import { isFirstWeekOfCadence } from "./constants"
 
 const web = new WebClient(process.env.SLACK_TOKEN)
-
-const firstWeekOfCadenceIsEvenWeek = true // flip this if the bot is notifying on the wrong weeks
 
 const CHANNEL = process.env.SLACK_CHANNEL ?? ""
 
@@ -20,22 +19,17 @@ export const sendReleaseReminder = async () => {
 		const isWednesday = now.weekday === 3
 		const isThursday = now.weekday === 4
 		const isFriday = now.weekday === 5
-		const isFirstWeekOfCadence =
-			(firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 0) ||
-			(!firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 1)
-		const isSecondWeekOfCadence =
-			(firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 1) ||
-			(!firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 0)
+		const isSecondWeekOfCadence = !isFirstWeekOfCadence(now)
 
 		// MAIN LOGIC START
 		let task: Task = "skip"
-		if (isFirstWeekOfCadence && isFriday) {
+		if (isFirstWeekOfCadence(now) && isFriday) {
 			task = "recent-and-applause"
 		}
 		if (isSecondWeekOfCadence && isWednesday) {
 			task = "feedback-form"
 		}
-		if (isFirstWeekOfCadence && isThursday) {
+		if (isFirstWeekOfCadence(now) && isThursday) {
 			task = "release-notes-reminder"
 		}
 
