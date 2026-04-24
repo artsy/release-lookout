@@ -37,7 +37,7 @@ export const sendReleaseReminder = async () => {
 			console.log("All good for today.")
 			return
 		}
-		// MAIN LOGIN END
+		// MAIN LOGIC END
 
 		const info = await web.conversations.info({
 			channel: CHANNEL,
