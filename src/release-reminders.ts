@@ -8,18 +8,13 @@ const firstWeekOfCadenceIsEvenWeek = true // flip this if the bot is notifying o
 
 const CHANNEL = process.env.SLACK_CHANNEL ?? ""
 
-type Task =
-	| "skip"
-	| "recent-and-applause"
-	| "feedback-form"
-	| "release-notes-reminder"
+type Task = "recent-and-applause" | "feedback-form" | "release-notes-reminder"
 
 export const sendReleaseReminder = async () => {
 	try {
 		const now = DateTime.now()
 		const isWednesday = now.weekday === 3
 		const isThursday = now.weekday === 4
-		const isFriday = now.weekday === 5
 		const isFirstWeekOfCadence =
 			(firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 0) ||
 			(!firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 1)
@@ -28,22 +23,19 @@ export const sendReleaseReminder = async () => {
 			(!firstWeekOfCadenceIsEvenWeek && now.weekNumber % 2 === 0)
 
 		// MAIN LOGIC START
-		let task: Task = "skip"
-		if (isFirstWeekOfCadence && isFriday) {
-			task = "recent-and-applause"
+		let tasks: Task[] = []
+		if (isFirstWeekOfCadence && isThursday) {
+			tasks = ["release-notes-reminder", "recent-and-applause"]
 		}
 		if (isSecondWeekOfCadence && isWednesday) {
-			task = "feedback-form"
-		}
-		if (isFirstWeekOfCadence && isThursday) {
-			task = "release-notes-reminder"
+			tasks = ["feedback-form"]
 		}
 
-		if (task === "skip") {
+		if (tasks.length === 0) {
 			console.log("All good for today.")
 			return
 		}
-		// MAIN LOGIN END
+		// MAIN LOGIC END
 
 		const info = await web.conversations.info({
 			channel: CHANNEL,
@@ -62,25 +54,28 @@ export const sendReleaseReminder = async () => {
 		const george = users.find((m) => m.displayName === "george")?.id ?? ""
 		const brian = users.find((m) => m.displayName === "brian.b")?.id ?? ""
 
-		let text = captain
-			? `Captain <@${captain}> 🫡, don't forget to ${await taskText(
-					task,
-					now.weekNumber
-			  )} today! ✨`
-			: `There is no Release Captain set <@${george}> <@${brian}>! Make sure to add one on the channel's topic. Someone should ${await taskText(
-					task,
-					now.weekNumber
-			  )} today!`
+		for (const task of tasks) {
+			let text: string
+			if (task === "release-notes-reminder") {
+				text = `${await taskText(task, now.weekNumber)}` // no need to mention the captain here
+			} else {
+				text = captain
+					? `Captain <@${captain}> 🫡, don't forget to ${await taskText(
+							task,
+							now.weekNumber
+					  )} today! ✨`
+					: `There is no Release Captain set <@${george}> <@${brian}>! Make sure to add one on the channel's topic. Someone should ${await taskText(
+							task,
+							now.weekNumber
+					  )} today!`
+			}
 
-		if (task === "release-notes-reminder") {
-			text = `${await taskText(task, now.weekNumber)}` // no need to mention the captain here
+			await web.chat.postMessage({
+				channel: CHANNEL,
+				text,
+			})
+			console.log(`Successfully sent reminder: ${task}`)
 		}
-
-		await web.chat.postMessage({
-			channel: CHANNEL,
-			text,
-		})
-		console.log("Successfully sent reminder.")
 	} catch (error) {
 		console.error("Error while sending reminder. See below:")
 		console.error({ error })
@@ -112,8 +107,6 @@ const getGroupHandles = async () => {
 
 const taskText = async (task: Task, weekNumber: number) => {
 	switch (task) {
-		case "skip":
-			return "relax" // this will not show anyway
 		case "recent-and-applause":
 			return getApplauseTaskText(weekNumber)
 		case "feedback-form":
