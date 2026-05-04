@@ -16,6 +16,9 @@ jobs:
       - run:
           name: Send reminder to Slack
           command: yarn send-reminder
+      - run:
+          name: Create RC branch and PR in eigen
+          command: yarn create-rc
 
   test-js:
     docker:
