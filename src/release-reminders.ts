@@ -89,12 +89,11 @@ export const sendReleaseReminder = async (now = DateTime.now()) => {
 const getGroupHandles = async () => {
 	// add or edit the team handles here
 	const teamHandles = [
-		"george", // --- IGNORE --- replace with real handles before deploying
-		// "mp-pals",
-		// "emerald-devs",
-		// "topaz-devs",
-		// "onyx-devs",
-		// "diamond-devs",
+		"mp-pals",
+		"emerald-devs",
+		"topaz-devs",
+		"onyx-devs",
+		"diamond-devs",
 	]
 
 	const groups = (await web.usergroups.list()).usergroups?.map((g) => ({
