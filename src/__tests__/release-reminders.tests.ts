@@ -1,4 +1,33 @@
 import { getApplauseTaskText } from "../release-reminders";
+import { getCurrentCaptainIndex, getNextCaptainIndex, ROTATION_EPOCH, RELEASE_CAPTAINS } from "../constants";
+
+describe('captain rotation', () => {
+  const n = RELEASE_CAPTAINS.length;
+
+  it('returns index 0 at the epoch date', () => {
+    expect(getCurrentCaptainIndex(ROTATION_EPOCH)).toBe(0);
+  });
+
+  it('returns index 0 one week after epoch (same captain serves 2 weeks)', () => {
+    expect(getCurrentCaptainIndex(ROTATION_EPOCH.plus({ weeks: 1 }))).toBe(0);
+  });
+
+  it('advances to index 1 after two weeks', () => {
+    expect(getCurrentCaptainIndex(ROTATION_EPOCH.plus({ weeks: 2 }))).toBe(1 % n);
+  });
+
+  it('wraps back to index 0 after a full rotation', () => {
+    expect(getCurrentCaptainIndex(ROTATION_EPOCH.plus({ weeks: n * 2 }))).toBe(0);
+  });
+
+  it('getNextCaptainIndex is always (current + 1) % n', () => {
+    const anchors = [ROTATION_EPOCH, ROTATION_EPOCH.plus({ weeks: 2 }), ROTATION_EPOCH.plus({ weeks: 4 })];
+    for (const date of anchors) {
+      const current = getCurrentCaptainIndex(date);
+      expect(getNextCaptainIndex(date)).toBe((current + 1) % n);
+    }
+  });
+});
 
 describe('getApplauseTaskText', () => {
   it('should iterate through test suites properly if releases are on even weeks', () => {

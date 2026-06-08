@@ -1,7 +1,13 @@
 import { WebClient } from "@slack/web-api"
 import { DateTime } from "luxon"
 import { assertNever } from "assert-never"
-import { isFirstWeekOfCadence } from "./constants"
+import {
+	isFirstWeekOfCadence,
+	RELEASE_CAPTAINS,
+	CAPTAIN_DOCS_URL,
+	getCurrentCaptainIndex,
+	getNextCaptainIndex,
+} from "./constants"
 
 const web = new WebClient(process.env.SLACK_TOKEN)
 
@@ -13,9 +19,8 @@ type Task =
 	| "feedback-form"
 	| "release-notes-reminder"
 
-export const sendReleaseReminder = async () => {
+export const sendReleaseReminder = async (now = DateTime.now()) => {
 	try {
-		const now = DateTime.now()
 		const isWednesday = now.weekday === 3
 		const isThursday = now.weekday === 4
 		const isFriday = now.weekday === 5
@@ -23,57 +28,57 @@ export const sendReleaseReminder = async () => {
 
 		// MAIN LOGIC START
 		let task: Task = "skip"
+		let sendCaptainOnboarding = false
 		if (isFirstWeekOfCadence(now) && isFriday) {
 			task = "recent-and-applause"
 		}
 		if (isSecondWeekOfCadence && isWednesday) {
 			task = "feedback-form"
 		}
+		if (isSecondWeekOfCadence && isThursday) {
+			sendCaptainOnboarding = true
+		}
 		if (isFirstWeekOfCadence(now) && isThursday) {
 			task = "release-notes-reminder"
 		}
 
-		if (task === "skip") {
+		if (task === "skip" && !sendCaptainOnboarding) {
 			console.log("All good for today.")
 			return
 		}
 		// MAIN LOGIC END
 
-		const info = await web.conversations.info({
-			channel: CHANNEL,
-		})
-		const topic = info.channel?.topic?.value ?? ""
+		if (task !== "skip") {
+			const captainId = RELEASE_CAPTAINS[getCurrentCaptainIndex(now)]
 
-		const regexp = /Captain: <@(.*)>/
-		const match = topic.match(regexp)
-		const captain = match ? match[1] : null
+			let text = `Captain <@${captainId}> 🫡, don't forget to ${await taskText(
+				task,
+				now.weekNumber
+			)} today! ✨`
 
-		const users = (await web.users.list()).members!.map((m) => ({
-			id: m.id,
-			displayName: m.profile?.display_name ?? "",
-		}))
+			if (task === "release-notes-reminder") {
+				text = `${await taskText(task, now.weekNumber)}` // no need to mention the captain here
+			}
 
-		const george = users.find((m) => m.displayName === "george")?.id ?? ""
-		const brian = users.find((m) => m.displayName === "brian.b")?.id ?? ""
-
-		let text = captain
-			? `Captain <@${captain}> 🫡, don't forget to ${await taskText(
-					task,
-					now.weekNumber
-			  )} today! ✨`
-			: `There is no Release Captain set <@${george}> <@${brian}>! Make sure to add one on the channel's topic. Someone should ${await taskText(
-					task,
-					now.weekNumber
-			  )} today!`
-
-		if (task === "release-notes-reminder") {
-			text = `${await taskText(task, now.weekNumber)}` // no need to mention the captain here
+			await web.chat.postMessage({
+				channel: CHANNEL,
+				text,
+			})
 		}
 
-		await web.chat.postMessage({
-			channel: CHANNEL,
-			text,
-		})
+		if (sendCaptainOnboarding) {
+			const nextCaptainId = RELEASE_CAPTAINS[getNextCaptainIndex(now)]
+			await web.chat.postMessage({
+				channel: CHANNEL,
+				text: `Hey <@${nextCaptainId}>! Your Release Captain rotation starts tomorrow. Here's everything you need to know: ${CAPTAIN_DOCS_URL}`,
+			})
+			await web.conversations.setTopic({
+				channel: CHANNEL,
+				topic: `Captain: <@${nextCaptainId}>`,
+			})
+			console.log(`Updated channel topic to incoming captain <@${nextCaptainId}>.`)
+		}
+
 		console.log("Successfully sent reminder.")
 	} catch (error) {
 		console.error("Error while sending reminder. See below:")
