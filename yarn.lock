@@ -10,8 +10,10 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
-"@artsy/changelog@file:../changelog":
+"@artsy/changelog@^0.1.0":
   version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@artsy/changelog/-/changelog-0.1.0.tgz#ab8c9d866298bd99749bc4d0bc0983655f37b65a"
+  integrity sha512-nzWF92kF+voLhtkAepnUhszM3xfzwKkrh/b8pb+WQFNpr38hfN7pQhPRCTC0jNqo7U70d0hqokyc0orqES/Dvw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.25.7":
   version "7.25.7"

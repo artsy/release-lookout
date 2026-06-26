@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@artsy/changelog": "file:../changelog",
+    "@artsy/changelog": "^0.1.0",
     "@slack/web-api": "6.9.1",
     "assert-never": "1.2.1",
     "dotenv": "16.0.3",
