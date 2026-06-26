@@ -18,8 +18,8 @@ export const isFirstWeekOfCadence = (now: DateTime): boolean =>
 export const RELEASE_CAPTAINS: string[] = [
 	"URE5S7BBN", // @brian.b
 	"U01RRGTBMU3", // @ole
-	"U02CNMURE7R", // @sultan
 	"U01427GSPK9", // @mounir
+	"U02CNMURE7R", // @sultan
 	"U023RJ49TUN", // @george
 	"U02HAF8J1QV", // @daria
 	"U02DTPDPGTA", // @carlos
