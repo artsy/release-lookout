@@ -29,6 +29,7 @@ const mockSuccessfulGithubCalls = () => {
 		.mockResolvedValueOnce({ ok: true, json: async () => ({ tree: { sha: "tree123" } }) }) // GET commit
 		.mockResolvedValueOnce({ ok: true, json: async () => ({ sha: "newcommit123" }) }) // POST empty commit
 		.mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // PATCH branch ref
+		.mockResolvedValueOnce({ ok: true, json: async () => [{ ref: "refs/heads/rc-v9.8.0" }] }) // GET matching-refs (only current branch -> no previous -> no changelog)
 		.mockResolvedValueOnce({ ok: true, json: async () => ({ number: 123, html_url: "https://github.com/artsy/eigen/pull/123" }) }) // POST PR
 		.mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // POST labels
 }
@@ -67,7 +68,7 @@ describe("createReleaseCandidate", () => {
 
 		await createReleaseCandidate()
 
-		expect(mockFetch).toHaveBeenCalledTimes(8)
+		expect(mockFetch).toHaveBeenCalledTimes(9)
 		expect(console.log).toHaveBeenCalledWith(
 			"Successfully created RC branch rc-v9.8.0 and PR #123"
 		)
@@ -86,6 +87,46 @@ describe("createReleaseCandidate", () => {
 		expect(prBody.title).toBe("chore(release): v9.8.0 RC")
 		expect(prBody.body).toContain("#nochangelog")
 		expect(prBody.body).toContain("⚠️")
+	})
+
+	it("injects the generated changelog into the PR body when a previous RC branch exists", async () => {
+		jest.spyOn(DateTime, "now").mockReturnValue(RC_FRIDAY)
+		mockFetch
+			.mockResolvedValueOnce({ ok: true, json: async () => ({ content: appJsonContent }) }) // GET app.json
+			.mockResolvedValueOnce({ ok: true, json: async () => ({ object: { sha: "abc123" } }) }) // GET main ref
+			.mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // POST create branch
+			.mockResolvedValueOnce({ ok: true, json: async () => ({ tree: { sha: "tree123" } }) }) // GET commit
+			.mockResolvedValueOnce({ ok: true, json: async () => ({ sha: "newcommit123" }) }) // POST empty commit
+			.mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // PATCH branch ref
+			.mockResolvedValueOnce({
+				ok: true,
+				json: async () => [{ ref: "refs/heads/rc-v9.7.0" }, { ref: "refs/heads/rc-v9.8.0" }],
+			}) // GET matching-refs -> previous = rc-v9.7.0
+			.mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					total_commits: 1,
+					commits: [{ commit: { message: "feat: thing (#101)" } }],
+				}),
+			}) // GET compare
+			.mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					body: "#### iOS user-facing changes\n- Fixed a thing",
+					user: { login: "alice" },
+				}),
+			}) // GET PR 101
+			.mockResolvedValueOnce({ ok: true, json: async () => ({ number: 123, html_url: "https://github.com/artsy/eigen/pull/123" }) }) // POST PR
+			.mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // POST labels
+
+		await createReleaseCandidate()
+
+		const prCall = mockFetch.mock.calls.find((call) => call[0].toString().endsWith("/pulls"))
+		const prBody = JSON.parse(prCall[1].body)
+		expect(prBody.body).toContain("## Changelog")
+		expect(prBody.body).toContain("### iOS user-facing changes")
+		expect(prBody.body).toContain("- Fixed a thing — alice (#101)")
+		expect(prBody.body).toContain("#nochangelog")
 	})
 
 	it("throws when version cannot be found in app.json", async () => {
