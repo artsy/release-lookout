@@ -3,29 +3,13 @@ dotenv.config()
 
 import { WebClient } from "@slack/web-api"
 import { DateTime } from "luxon"
+import { generateChangelogMarkdown } from "./changelog"
 import { isFirstWeekOfCadence } from "./constants"
+import { github } from "./github"
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN ?? ""
 const SLACK_CHANNEL = process.env.SLACK_CHANNEL ?? ""
 
 const web = new WebClient(process.env.SLACK_TOKEN)
-
-const github = async <T = unknown>(url: string, options?: RequestInit): Promise<T> => {
-	const res = await fetch(url, {
-		...options,
-		headers: {
-			Authorization: `Bearer ${GITHUB_TOKEN}`,
-			Accept: "application/vnd.github+json",
-			"X-GitHub-Api-Version": "2022-11-28",
-			"Content-Type": "application/json",
-		},
-	})
-	if (!res.ok) {
-		const body = await res.text()
-		throw new Error(`GitHub API error ${res.status}: ${body}`)
-	}
-	return res.json() as Promise<T>
-}
 
 export const createReleaseCandidate = async () => {
 	const now = DateTime.now()
@@ -81,6 +65,25 @@ export const createReleaseCandidate = async () => {
 		body: JSON.stringify({ sha: emptyCommit.sha }),
 	})
 
+	// Best-effort: a changelog failure must never block RC creation.
+	let changelog: string | null = null
+	try {
+		changelog = await generateChangelogMarkdown(version)
+	} catch (error) {
+		console.error("Failed to generate changelog (continuing without it):", error)
+	}
+
+	const body = [
+		`## Release Candidate ${version}`,
+		``,
+		`This branch was automatically created as the release candidate for version ${version}.`,
+		``,
+		`> ⚠️ Do not merge this PR. It is used for tracking the release and 🍒 cherry-picking fixes only.`,
+		...(changelog ? [``, `## Changelog`, ``, changelog] : []),
+		``,
+		`#nochangelog`,
+	].join("\n")
+
 	const pr = await github<{ number: number; html_url: string }>(
 		"https://api.github.com/repos/artsy/eigen/pulls",
 		{
@@ -89,7 +92,7 @@ export const createReleaseCandidate = async () => {
 				title: `chore(release): v${version} RC`,
 				head: branchName,
 				base: "main",
-				body: `## Release Candidate ${version}\n\nThis branch was automatically created as the release candidate for version ${version}.\n\n> ⚠️ Do not merge this PR. It is used for tracking the release and 🍒 cherry-picking fixes only.\n\n#nochangelog`,
+				body,
 			}),
 		}
 	)
