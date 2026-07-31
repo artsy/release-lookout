@@ -1,13 +1,8 @@
 import { WebClient } from "@slack/web-api"
 import { DateTime } from "luxon"
 import { assertNever } from "assert-never"
-import {
-	isFirstWeekOfCadence,
-	RELEASE_CAPTAINS,
-	CAPTAIN_DOCS_URL,
-	getCurrentCaptainIndex,
-	getNextCaptainIndex,
-} from "./constants"
+import { isFirstWeekOfCadence, CAPTAIN_DOCS_URL } from "./constants"
+import { resolveCaptains } from "./orbit"
 
 const web = new WebClient(process.env.SLACK_TOKEN)
 
@@ -48,9 +43,13 @@ export const sendReleaseReminder = async (now = DateTime.now()) => {
 		}
 		// MAIN LOGIC END
 
-		if (task !== "skip") {
-			const captainId = RELEASE_CAPTAINS[getCurrentCaptainIndex(now)]
+		// Who's on call now / next — from Orbit when configured, else the local
+		// rotation math (see ./orbit).
+		const { current: captainId, next: nextCaptainId } = await resolveCaptains(
+			now
+		)
 
+		if (task !== "skip") {
 			let text = `Captain <@${captainId}> 🫡, don't forget to ${await taskText(
 				task,
 				now.weekNumber
@@ -67,7 +66,6 @@ export const sendReleaseReminder = async (now = DateTime.now()) => {
 		}
 
 		if (sendCaptainOnboarding) {
-			const nextCaptainId = RELEASE_CAPTAINS[getNextCaptainIndex(now)]
 			await web.chat.postMessage({
 				channel: CHANNEL,
 				text: `Hey <@${nextCaptainId}>! Your Release Captain rotation starts tomorrow. Here's everything you need to know: ${CAPTAIN_DOCS_URL}`,
