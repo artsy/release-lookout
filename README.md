@@ -5,7 +5,7 @@
 The bot that drives Artsy's mobile release cadence. It reminds the Release Captain of the tasks
 due on a given day, and cuts the release candidate itself on code-freeze day.
 
-The captain-facing runbook is [Release Captain Tasks 🔐](https://www.notion.so/artsy/Release-Captain-Tasks-7ca3e6f5d16e41079a1fb1b1706bd018).
+The captain-facing runbook is [Release Captain Tasks 🔐](https://app.notion.com/p/artsy/Release-Captain-Tasks-3b3cab0764a08079bba8ffd86843072a).
 
 ## Meta
 
