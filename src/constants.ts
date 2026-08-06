@@ -26,7 +26,7 @@ export const RELEASE_CAPTAINS: string[] = [
 ]
 
 export const CAPTAIN_DOCS_URL =
-	"https://www.notion.so/artsy/Release-Captain-Tasks-7ca3e6f5d16e41079a1fb1b1706bd018" // link to your captain runbook
+	"https://app.notion.com/p/artsy/Release-Captain-Tasks-3b3cab0764a08079bba8ffd86843072a" // link to your captain runbook
 
 export const getCurrentCaptainIndex = (now: DateTime): number => {
 	const n = RELEASE_CAPTAINS.length
