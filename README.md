@@ -42,16 +42,9 @@ parity, so year boundaries (week 52→1, 53→1) don't flip the cadence. Everyth
 
 ### Who's the captain
 
-By default, from the ordered `RELEASE_CAPTAINS` list of Slack user IDs in `src/constants.ts`, indexed
-by cadences since `ROTATION_EPOCH`. **Changing the rotation needs a PR** — deliberately, for
-auditability. If you reshuffle the list, update `ROTATION_EPOCH` too, or the index maths shifts
-everyone.
+[Orbit](https://github.com/artsy/orbit) The rotation of the captains lives in orbit https://orbit.artsy.net/rotations/cms7oon4o0000s011fwzr9s1n, which gives us overrides and shift swaps.
 
-`src/orbit.ts` is an opt-in proof of concept that asks [Orbit](https://github.com/artsy/orbit) for
-the on-call schedule instead, which would give us overrides and shift swaps for free. It is **not
-enabled** — set `ORBIT_URL`, `ORBIT_ROTATION_ID` and `ORBIT_TOKEN` to turn it on. It's blocked on
-Orbit accepting a service token for read access (its API currently needs an interactive next-auth
-session, which a headless bot can't get). With the env vars unset it no-ops to the local maths.
+You can also find the captain's name as a topic of the #practice-mobile channel.
 
 ## How to develop
 
