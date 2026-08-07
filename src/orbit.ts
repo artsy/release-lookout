@@ -1,21 +1,13 @@
 import { DateTime } from "luxon"
-import {
-	RELEASE_CAPTAINS,
-	getCurrentCaptainIndex,
-	getNextCaptainIndex,
-} from "./constants"
 
 /**
- * Orbit integration (proof of concept).
+ * Orbit integration.
  *
- * Orbit (github.com/artsy/orbit) is Artsy's on-call rotation scheduler. Instead
- * of hardcoding the captain list + rotation math in `constants.ts`, we can ask
- * Orbit who is on call — and get overrides/shift-swaps applied for free.
- *
- * This module fetches Orbit's computed schedule for the "Release Captain"
- * rotation and returns the current + next captain as Slack user IDs. It is
- * OPT-IN via env vars and falls back to the local `constants.ts` math when
- * unset, so behaviour is unchanged until Orbit is wired up:
+ * Orbit (github.com/artsy/orbit) is Artsy's on-call rotation scheduler and is
+ * the sole source of truth for the Release Captain rotation — there is no
+ * local fallback. ORBIT_URL and ORBIT_ROTATION_ID are required; resolveCaptains
+ * throws immediately if either is unset, and throws if the Orbit lookup fails,
+ * rather than silently degrading.
  *
  *   ORBIT_URL          e.g. https://orbit.artsy.net
  *   ORBIT_ROTATION_ID  the Release Captain rotation's id
@@ -24,8 +16,7 @@ import {
  * NOTE ON AUTH: Orbit's API currently requires an interactive next-auth session
  * (Gravity `team` role), which a headless bot can't obtain. Using Orbit from
  * here needs Orbit to accept a service token for read access — that's the main
- * adjustment tracked on the Orbit side. Until then, leave the env vars unset
- * and this module no-ops to the local fallback.
+ * adjustment tracked on the Orbit side.
  */
 
 // Minimal shapes of the bits of Orbit's `GET /api/rotations/[id]/schedule`
@@ -46,10 +37,20 @@ export interface Captains {
 	next: string
 }
 
-const readConfig = () => {
+interface OrbitConfig {
+	url: string
+	rotationId: string
+	token?: string
+}
+
+const requireConfig = (): OrbitConfig => {
 	const url = process.env.ORBIT_URL
 	const rotationId = process.env.ORBIT_ROTATION_ID
-	if (!url || !rotationId) return null
+	if (!url || !rotationId) {
+		throw new Error(
+			"Orbit is not configured: ORBIT_URL and ORBIT_ROTATION_ID must both be set."
+		)
+	}
 	return { url, rotationId, token: process.env.ORBIT_TOKEN }
 }
 
@@ -64,23 +65,15 @@ const fetchJson = async <T>(url: string, token?: string): Promise<T> => {
 	return (await res.json()) as T
 }
 
-/** The local, hardcoded fallback — the behaviour that shipped before Orbit. */
-export const resolveCaptainsLocally = (now: DateTime): Captains => ({
-	current: RELEASE_CAPTAINS[getCurrentCaptainIndex(now)],
-	next: RELEASE_CAPTAINS[getNextCaptainIndex(now)],
-})
-
 /**
  * Ask Orbit who's on call now and next, mapped to Slack user IDs. Returns
- * `null` when Orbit isn't configured or the lookup fails, so callers can fall
- * back to the local math.
+ * `null` when the lookup fails or Orbit's data doesn't resolve to two Slack
+ * IDs.
  */
 export const resolveCaptainsFromOrbit = async (
-	now: DateTime
+	now: DateTime,
+	config: OrbitConfig
 ): Promise<Captains | null> => {
-	const config = readConfig()
-	if (!config) return null
-
 	try {
 		const start = now.toUTC().toISO()
 		// Two cadences ahead is plenty to always contain "current" and "next".
@@ -124,11 +117,16 @@ export const resolveCaptainsFromOrbit = async (
 
 		return { current: currentSlack, next: nextSlack }
 	} catch (error) {
-		console.error("Orbit lookup failed; falling back to local rotation.", error)
+		console.error("Orbit lookup failed.", error)
 		return null
 	}
 }
 
-/** Prefer Orbit when configured; otherwise use the local `constants.ts` math. */
-export const resolveCaptains = async (now: DateTime): Promise<Captains> =>
-	(await resolveCaptainsFromOrbit(now)) ?? resolveCaptainsLocally(now)
+export const resolveCaptains = async (now: DateTime): Promise<Captains> => {
+	const config = requireConfig() // fail fast, before any I/O
+	const captains = await resolveCaptainsFromOrbit(now, config)
+	if (!captains) {
+		throw new Error("Orbit lookup failed to resolve current/next captain.")
+	}
+	return captains
+}

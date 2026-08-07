@@ -43,8 +43,8 @@ export const sendReleaseReminder = async (now = DateTime.now()) => {
 		}
 		// MAIN LOGIC END
 
-		// Who's on call now / next — from Orbit when configured, else the local
-		// rotation math (see ./orbit).
+		// Who's on call now / next, via Orbit (see ./orbit; throws if Orbit
+		// isn't configured or reachable).
 		const { current: captainId, next: nextCaptainId } = await resolveCaptains(
 			now
 		)
