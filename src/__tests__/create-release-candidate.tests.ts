@@ -13,11 +13,11 @@ const mockFetch = jest.fn()
 global.fetch = mockFetch
 
 // 2026-05-01: Friday, week 18 (even = RC week when firstWeekOfCadenceIsEvenWeek=true)
-const RC_FRIDAY = DateTime.fromISO("2026-05-01") as DateTime<true>
+const RC_FRIDAY = DateTime.fromISO("2026-04-30") as DateTime<true>
 // 2026-04-24: Friday, week 17 (odd = non-RC week)
-const NON_RC_FRIDAY = DateTime.fromISO("2026-04-24") as DateTime<true>
+const NON_RC_FRIDAY = DateTime.fromISO("2026-04-23") as DateTime<true>
 // 2026-04-27: Monday, week 18
-const RC_MONDAY = DateTime.fromISO("2026-04-27") as DateTime<true>
+const RC_MONDAY = DateTime.fromISO("2026-04-26") as DateTime<true>
 
 const appJsonContent = Buffer.from(JSON.stringify({ version: "9.8.0" })).toString("base64")
 
