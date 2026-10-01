@@ -1,7 +1,8 @@
 import * as dotenv from "dotenv"
 dotenv.config()
 
-import { currentTime } from "./constants"
+import { DateTime } from "luxon"
 import { sendReleaseReminder } from "./release-reminders"
 
-sendReleaseReminder(currentTime())
+// TEMP: run as tomorrow (Friday) for the Thu 2026-10-01 one-off. Revert on Friday.
+sendReleaseReminder(DateTime.now().plus({ days: 1 }))

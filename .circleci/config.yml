@@ -5,14 +5,8 @@ orbs:
 
 jobs:
   send_reminder:
-    parameters:
-      force_date:
-        type: string
-        default: ""
     docker:
       - image: cimg/node:20.9.0
-    environment:
-      FORCE_DATE: << parameters.force_date >>
 
     steps:
       - checkout
@@ -69,8 +63,7 @@ workflows:
               only:
                 - main
     jobs:
-      - send_reminder:
-          force_date: "2026-10-02"
+      - send_reminder
   # # Uncomment the following workflow to trigger the reminder on every push, for debugging.
   # release_cadence_manual:
   #   jobs:
