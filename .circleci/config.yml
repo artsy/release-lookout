@@ -42,7 +42,22 @@ workflows:
   release_cadence:
     triggers:
       - schedule:
-          cron: "0 10 * * 1,2,3,4,5" # https://crontab.guru
+          # TEMP: Friday skipped this cycle (jobs ran Thu 2026-10-01 via
+          # release_cadence_oneoff below). Restore to 1,2,3,4,5 after Fri 10:00 UTC.
+          cron: "0 10 * * 1,2,3,4" # https://crontab.guru
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - send_reminder
+
+  # TEMP: run Friday's jobs on Thu 2026-10-01 at 14:30 CEST (12:30 UTC).
+  # Day-of-month 1 / October so it can't fire on any other Thursday. Remove on Friday.
+  release_cadence_oneoff:
+    triggers:
+      - schedule:
+          cron: "30 12 1 10 *"
           filters:
             branches:
               only:

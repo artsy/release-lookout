@@ -11,8 +11,7 @@ const SLACK_CHANNEL = process.env.SLACK_CHANNEL ?? ""
 
 const web = new WebClient(process.env.SLACK_TOKEN)
 
-export const createReleaseCandidate = async () => {
-	const now = DateTime.now()
+export const createReleaseCandidate = async (now = DateTime.now()) => {
 	const isFriday = now.weekday === 5
 	if (!isFriday) {
 		console.log("Not RC creation day (not Friday).")
@@ -112,7 +111,8 @@ export const createReleaseCandidate = async () => {
 
 // Prevents auto-execution when imported in tests
 if (require.main === module) {
-	createReleaseCandidate().catch((error) => {
+	// TEMP: run as tomorrow (Friday) for the Thu 2026-10-01 one-off. Revert on Friday.
+	createReleaseCandidate(DateTime.now().plus({ days: 1 })).catch((error) => {
 		console.error("Error creating release candidate:", error)
 		process.exit(1)
 	})
