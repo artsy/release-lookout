@@ -13,7 +13,7 @@ const web = new WebClient(process.env.SLACK_TOKEN)
 
 export const createReleaseCandidate = async () => {
 	const now = DateTime.now()
-	const isFriday = now.weekday === 4
+	const isFriday = now.weekday === 5
 	if (!isFriday) {
 		console.log("Not RC creation day (not Friday).")
 		return

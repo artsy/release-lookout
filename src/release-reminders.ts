@@ -16,9 +16,9 @@ type Task =
 
 export const sendReleaseReminder = async (now = DateTime.now()) => {
 	try {
-		const isWednesday = now.weekday === 2
-		const isThursday = now.weekday === 3
-		const isFriday = now.weekday === 4
+		const isWednesday = now.weekday === 3
+		const isThursday = now.weekday === 4
+		const isFriday = now.weekday === 5
 		const isSecondWeekOfCadence = !isFirstWeekOfCadence(now)
 
 		// MAIN LOGIC START
