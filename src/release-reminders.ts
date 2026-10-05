@@ -1,7 +1,7 @@
 import { WebClient } from "@slack/web-api"
 import { DateTime } from "luxon"
 import { assertNever } from "assert-never"
-import { isFirstWeekOfCadence, CAPTAIN_DOCS_URL } from "./constants"
+import { isFirstWeekOfCadence, getScheduleDate, CAPTAIN_DOCS_URL } from "./constants"
 import { resolveCaptains } from "./orbit"
 
 const web = new WebClient(process.env.SLACK_TOKEN)
@@ -16,15 +16,18 @@ type Task =
 
 export const sendReleaseReminder = async (now = DateTime.now()) => {
 	try {
-		const isWednesday = now.weekday === 3
-		const isThursday = now.weekday === 4
-		const isFriday = now.weekday === 5
-		const isSecondWeekOfCadence = !isFirstWeekOfCadence(now)
+		// Weekday/cadence logic runs on the (possibly offset) schedule date.
+		// Orbit below keeps using the real `now`.
+		const scheduleNow = getScheduleDate(now)
+		const isWednesday = scheduleNow.weekday === 3
+		const isThursday = scheduleNow.weekday === 4
+		const isFriday = scheduleNow.weekday === 5
+		const isSecondWeekOfCadence = !isFirstWeekOfCadence(scheduleNow)
 
 		// MAIN LOGIC START
 		let task: Task = "skip"
 		let sendCaptainOnboarding = false
-		if (isFirstWeekOfCadence(now) && isFriday) {
+		if (isFirstWeekOfCadence(scheduleNow) && isFriday) {
 			task = "recent-and-applause"
 		}
 		if (isSecondWeekOfCadence && isWednesday) {
@@ -33,7 +36,7 @@ export const sendReleaseReminder = async (now = DateTime.now()) => {
 		if (isSecondWeekOfCadence && isThursday) {
 			sendCaptainOnboarding = true
 		}
-		if (isFirstWeekOfCadence(now) && isThursday) {
+		if (isFirstWeekOfCadence(scheduleNow) && isThursday) {
 			task = "release-notes-reminder"
 		}
 
@@ -52,11 +55,11 @@ export const sendReleaseReminder = async (now = DateTime.now()) => {
 		if (task !== "skip") {
 			let text = `Captain <@${captainId}> 🫡, don't forget to ${await taskText(
 				task,
-				now.weekNumber
+				scheduleNow.weekNumber
 			)} today! ✨`
 
 			if (task === "release-notes-reminder") {
-				text = `${await taskText(task, now.weekNumber)}` // no need to mention the captain here
+				text = `${await taskText(task, scheduleNow.weekNumber)}` // no need to mention the captain here
 			}
 
 			await web.chat.postMessage({
