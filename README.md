@@ -66,3 +66,29 @@ By default messages go to the `#bot-testing` channel — add yourself there to s
 
 `.circleci/config.yml` has a commented-out `release_cadence_manual` workflow that runs the job on
 every push. Handy for debugging on a branch; don't merge it uncommented.
+
+## Shifting the schedule (bank holidays)
+
+Set these in the CircleCI project's environment variables (no code change or deploy needed):
+
+| Variable | Meaning |
+| --- | --- |
+| `RELEASE_DAY_OFFSET` | Whole days to shift. `-1` runs the schedule a day earlier (Thursday behaves as Friday), `1` a day later. Default `0`. |
+| `RELEASE_DAY_OFFSET_UNTIL` | Optional ISO date (inclusive). After it the offset is ignored, so it can't linger. |
+
+**Example:** Friday 2026-10-09 is a bank holiday, so the Friday tasks (RC creation, applause reminder) should run on Thursday the 8th, and Thursday's tasks on Wednesday the 7th. Set:
+
+```
+RELEASE_DAY_OFFSET=-1
+RELEASE_DAY_OFFSET_UNTIL=2026-10-08
+```
+
+The offset applies through the end of Thursday the 8th. From Friday the 9th on it is ignored automatically, so there is nothing to unset afterwards (you can still delete the variables to tidy up). Without `RELEASE_DAY_OFFSET_UNTIL`, the offset stays active until you remove it.
+
+The offset applies to both reminders and RC creation. Orbit's captain lookup still uses the real date.
+
+**Weekends and week boundaries**
+
+- The cron runs every day, so a positive offset can fire on a real Saturday or Sunday (e.g. `1` runs Friday's tasks on Saturday). Slack messages will be posted on that weekend day.
+- An offset that moves the schedule date across a Sunday/Monday boundary also changes which cadence week it counts as. Offsets of 1–2 days around a normal Thursday/Friday release don't cross it.
+- The captain-handover message still says the rotation starts "tomorrow", while Orbit's actual switch keeps its real date.

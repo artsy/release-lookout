@@ -4,7 +4,7 @@ dotenv.config()
 import { WebClient } from "@slack/web-api"
 import { DateTime } from "luxon"
 import { generateChangelogMarkdown } from "./changelog"
-import { isFirstWeekOfCadence } from "./constants"
+import { isFirstWeekOfCadence, getScheduleDate } from "./constants"
 import { github } from "./github"
 
 const SLACK_CHANNEL = process.env.SLACK_CHANNEL ?? ""
@@ -12,7 +12,7 @@ const SLACK_CHANNEL = process.env.SLACK_CHANNEL ?? ""
 const web = new WebClient(process.env.SLACK_TOKEN)
 
 export const createReleaseCandidate = async () => {
-	const now = DateTime.now()
+	const now = getScheduleDate(DateTime.now())
 	const isFriday = now.weekday === 5
 	if (!isFriday) {
 		console.log("Not RC creation day (not Friday).")

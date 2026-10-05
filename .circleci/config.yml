@@ -42,7 +42,7 @@ workflows:
   release_cadence:
     triggers:
       - schedule:
-          cron: "0 10 * * 1,2,3,4,5" # https://crontab.guru
+          cron: "0 10 * * *" # https://crontab.guru. Daily so positive RELEASE_DAY_OFFSET can land on weekends; scripts no-op on non-task days.
           filters:
             branches:
               only:
