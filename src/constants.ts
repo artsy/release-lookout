@@ -27,14 +27,11 @@ export const CAPTAIN_DOCS_URL =
  * Use the returned date for weekday/cadence checks only. Anything tied to the
  * real calendar (e.g. Orbit's on-call lookup) must keep using the real `now`.
  */
-export const getScheduleDate = (
-	now: DateTime = DateTime.now(),
-	env: NodeJS.ProcessEnv = process.env
-): DateTime => {
-	const offset = Number.parseInt(env.RELEASE_DAY_OFFSET ?? "", 10)
+export const getScheduleDate = (now: DateTime): DateTime => {
+	const offset = Number.parseInt(process.env.RELEASE_DAY_OFFSET ?? "", 10)
 	if (!Number.isFinite(offset) || offset === 0) return now
 
-	const untilRaw = env.RELEASE_DAY_OFFSET_UNTIL
+	const untilRaw = process.env.RELEASE_DAY_OFFSET_UNTIL
 	if (untilRaw) {
 		const until = DateTime.fromISO(untilRaw, { zone: now.zone })
 		if (!until.isValid) {
