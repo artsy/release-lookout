@@ -89,6 +89,6 @@ The offset applies to both reminders and RC creation. Orbit's captain lookup sti
 
 **Weekends and week boundaries**
 
-- The cron runs every day, so a positive offset can fire on a real Saturday or Sunday (e.g. `1` runs Friday's tasks on Saturday). Slack messages will be posted on that weekend day.
+- The cron only runs Monday–Friday, so tasks shifted onto a Saturday or Sunday never run (e.g. `1` would move Friday's tasks to Saturday and skip them). Use offsets that keep every task on a weekday.
 - An offset that moves the schedule date across a Sunday/Monday boundary also changes which cadence week it counts as. Offsets of 1–2 days around a normal Thursday/Friday release don't cross it.
 - The captain-handover message still says the rotation starts "tomorrow", while Orbit's actual switch keeps its real date.
