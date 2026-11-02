@@ -25,6 +25,7 @@ We release on a two-week cadence: code freeze on the **Friday of week 1**, submi
 | --- | --- | --- |
 | Thu, week 1 | Release-notes call-out in Slack, tagging every team handle (no captain mention) | `send-reminder` |
 | Fri, week 1 | Reminder to set up Recent Changes QA + request Applause, naming **this cycle's platform and test suite** from the 4-release rotation | `send-reminder` |
+| Fri, week 1 | Schedules a follow-up in the Applause reminder's thread (via Slack's `chat.scheduleMessage`) at **17:00 Berlin time**, asking the captain to request the cycle at support.applause.com | `send-reminder` |
 | Fri, week 1 | Cuts `rc-v<version>` from eigen's `main`, opens the `chore(release): v<version> RC` PR labelled "Do not merge" with the generated changelog, posts the code-freeze message | `create-rc` |
 | Wed, week 2 | Feedback-form nudge | `send-reminder` |
 | Thu, week 2 | DMs the **incoming** captain the runbook link and sets the channel topic to `Captain: <@next>` | `send-reminder` |

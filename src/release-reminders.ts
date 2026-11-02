@@ -62,10 +62,23 @@ export const sendReleaseReminder = async (now = DateTime.now()) => {
 				text = `${await taskText(task, scheduleNow.weekNumber)}` // no need to mention the captain here
 			}
 
-			await web.chat.postMessage({
+			const reminder = await web.chat.postMessage({
 				channel: CHANNEL,
 				text,
 			})
+
+			const followUp =
+				task === "recent-and-applause" &&
+				getApplauseFollowUp(now, captainId, scheduleNow.weekNumber)
+			if (followUp) {
+				await web.chat.scheduleMessage({
+					channel: CHANNEL,
+					thread_ts: reminder.ts,
+					text: followUp.text,
+					post_at: Math.floor(followUp.postAt.toSeconds()),
+				})
+				console.log(`Scheduled Applause follow-up for ${followUp.postAt.toISO()}.`)
+			}
 		}
 
 		if (sendCaptainOnboarding) {
@@ -125,10 +138,38 @@ const taskText = async (task: Task, weekNumber: number) => {
 	}
 }
 
-export const getApplauseTaskText = (weekNumber: number): string => {
+const getApplauseCycle = (weekNumber: number) => {
 	const releaseNumber = Math.floor((weekNumber - 1) / 2) + 1
 	const currentCycleIndex = (releaseNumber - 1) % 4 // 0-indexed cycle count
 	const testSuite = currentCycleIndex < 2 ? "Test Suite 1" : "Test Suite 2"
 	const platform = currentCycleIndex % 2 === 0 ? "Android" : "iOS"
+	return { platform, testSuite }
+}
+
+export const getApplauseTaskText = (weekNumber: number): string => {
+	const { platform, testSuite } = getApplauseCycle(weekNumber)
 	return `set up Recent Changes QA and Request Applause QA for the ${platform} app using ${testSuite}`
+}
+
+const APPLAUSE_REQUEST_URL = "https://support.applause.com"
+
+/**
+ * Nudge posted at 17:00 Berlin on Applause request day. Returns null once that
+ * time has passed, since Slack rejects a `post_at` in the past.
+ */
+export const getApplauseFollowUp = (
+	now: DateTime,
+	captainId: string,
+	weekNumber: number
+): { postAt: DateTime; text: string } | null => {
+	const postAt = now
+		.setZone("Europe/Berlin")
+		.set({ hour: 17, minute: 0, second: 0, millisecond: 0 })
+	if (postAt <= now) return null
+
+	const { platform, testSuite } = getApplauseCycle(weekNumber)
+	return {
+		postAt,
+		text: `Captain <@${captainId}> ⏰ reminder: have you requested the Applause QA cycle for the ${platform} app (${testSuite}) yet? <${APPLAUSE_REQUEST_URL}|Request it here>`,
+	}
 }
